@@ -60,7 +60,7 @@
             </div>
             <hr>
           </template>
-          <template v-if="suggestions.length == 0">
+          <template v-if="suggestions.length == 0 && !loading">
             <div class="misc-item">
               <span>一致するモノはありません</span>
             </div>
