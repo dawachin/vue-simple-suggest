@@ -15,8 +15,8 @@
         v-model="model"
         :list="getList"
         :max-suggestions="10"
-        :min-length="3"
-        :debounce="200"
+        :min-length="0"
+        :debounce="0"
         :filter-by-query="false"
         :prevent-submit="true"
         :controls="{
@@ -50,32 +50,35 @@
         <!-- <test-input placeholder="Search information..." /> -->
 
         <template slot="misc-item-above" slot-scope="{ suggestions, query }">
-          <div class="misc-item">
+          <!-- <div class="misc-item">
             <span>You're searching for '{{ query }}'.</span>
-          </div>
+          </div> -->
 
           <template v-if="suggestions.length > 0">
             <div class="misc-item">
-              <span>{{ suggestions.length }} suggestions are shown...</span>
+              <span>{{ suggestions.length }} 件見つかりました</span>
             </div>
             <hr>
           </template>
+          <template v-if="suggestions.length == 0">
+            <div class="misc-item">
+              <span>一致するモノはありません</span>
+            </div>
+          </template>
 
-          <div class="misc-item" v-else-if="!loading">
-            <span>No results</span>
-          </div>
+          <!-- <div class="misc-item" v-else-if="!loading">
+            <span>一致するモノはありません</span>
+          </div> -->
         </template>
 
         <div slot="suggestion-item" slot-scope="scope" :title="scope.suggestion.description">
           <div class="text">
             <span v-html="boldenSuggestion(scope)"></span>
           </div>
-          <button @click.stop="addToLog(scope.suggestion.description)">Log</button>
-          <button @click.stop="goto(scope.suggestion.link)">Open WIKI</button>
         </div>
 
         <div class="misc-item" slot="misc-item-below" slot-scope="{ suggestions }" v-if="loading">
-          <span>Loading...</span>
+          <span>検索中...</span>
         </div>
       </vue-suggest>
 
