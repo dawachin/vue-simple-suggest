@@ -5,7 +5,6 @@
     @keydown.tab="isTabbed = true"
   >
     <div
-      class="input-wrapper"
       ref="inputSlot"
       role="combobox"
       aria-haspopup="listbox"
@@ -14,13 +13,12 @@
       :class="styles.inputWrapper"
     >
       <slot>
-        <label>ラベル</label>
         <input
           class="default-input"
           v-bind="$attrs"
           :value="text || ''"
           :class="styles.defaultInput"
-        >
+        />
       </slot>
     </div>
     <transition name="vue-simple-suggest">
