@@ -1,21 +1,33 @@
 <template>
-  <div class="vue-simple-suggest"
+  <div
+    class="vue-simple-suggest"
     :class="[styles.vueSimpleSuggest, { designed: !destyled, focus: isInFocus }]"
     @keydown.tab="isTabbed = true"
   >
-    <div class="input-wrapper" ref="inputSlot"
+    <div
+      class="input-wrapper"
+      ref="inputSlot"
       role="combobox"
       aria-haspopup="listbox"
       :aria-owns="listId"
       :aria-expanded="!!listShown && !removeList ? 'true' : 'false'"
-      :class="styles.inputWrapper">
+      :class="styles.inputWrapper"
+    >
       <slot>
-        <input class="default-input" v-bind="$attrs" :value="text || ''"
-          :class="styles.defaultInput">
+        <label>ラベル</label>
+        <input
+          class="default-input"
+          v-bind="$attrs"
+          :value="text || ''"
+          :class="styles.defaultInput"
+        >
       </slot>
     </div>
     <transition name="vue-simple-suggest">
-      <ul :id="listId" class="suggestions" v-if="!!listShown && !removeList"
+      <ul
+        :id="listId"
+        class="suggestions"
+        v-if="!!listShown && !removeList"
         role="listbox"
         :aria-labelledby="listId"
         :class="styles.suggestions"
@@ -23,13 +35,12 @@
         @mouseleave="hoverList(false)"
       >
         <li v-if="!!this.$scopedSlots['misc-item-above']">
-          <slot name="misc-item-above"
-            :suggestions="suggestions"
-            :query="text"
-          ></slot>
+          <slot name="misc-item-above" :suggestions="suggestions" :query="text"></slot>
         </li>
 
-        <li class="suggest-item" v-for="(suggestion, index) in suggestions"
+        <li
+          class="suggest-item"
+          v-for="(suggestion, index) in suggestions"
           role="option"
           @mouseenter="hover(suggestion, $event.target)"
           @mouseleave="hover(undefined)"
@@ -41,20 +52,20 @@
             styles.suggestItem,{
             selected: isSelected(suggestion),
             hover: isHovered(suggestion)
-            }]">
-          <slot name="suggestion-item"
+            }]"
+        >
+          <slot
+            name="suggestion-item"
             :autocomplete="() => setText(displayProperty(suggestion))"
             :suggestion="suggestion"
-            :query="text">
+            :query="text"
+          >
             <span>{{ displayProperty(suggestion) }}</span>
           </slot>
         </li>
 
         <li v-if="!!this.$scopedSlots['misc-item-below']">
-          <slot name="misc-item-below"
-            :suggestions="suggestions"
-            :query="text"
-          ></slot>
+          <slot name="misc-item-below" :suggestions="suggestions" :query="text"></slot>
         </li>
       </ul>
     </transition>
@@ -62,19 +73,14 @@
 </template>
 
 <script>
-import {
-  defaultControls,
-  modes,
-  fromPath,
-  hasKeyCode
-} from './misc'
+import { defaultControls, modes, fromPath, hasKeyCode } from "./misc";
 
 export default {
-  name: 'vue-simple-suggest',
+  name: "vue-simple-suggest",
   inheritAttrs: false,
   model: {
-    prop: 'value',
-    event: 'input'
+    prop: "value",
+    event: "input"
   },
   props: {
     styles: {
@@ -95,11 +101,11 @@ export default {
     },
     displayAttribute: {
       type: String,
-      default: 'title'
+      default: "title"
     },
     valueAttribute: {
       type: String,
-      default: 'id'
+      default: "id"
     },
     list: {
       type: [Function, Array],
@@ -124,7 +130,11 @@ export default {
     filter: {
       type: Function,
       default(el, value) {
-        return value ? ~this.displayProperty(el).toLowerCase().indexOf(value.toLowerCase()) : true
+        return value
+          ? ~this.displayProperty(el)
+              .toLowerCase()
+              .indexOf(value.toLowerCase())
+          : true;
       }
     },
     debounce: {
@@ -138,7 +148,7 @@ export default {
     value: {},
     mode: {
       type: String,
-      default: 'input',
+      default: "input",
       validator: value => !!~Object.keys(modes).indexOf(value.toLowerCase())
     }
   },
@@ -146,34 +156,34 @@ export default {
   watch: {
     mode: {
       handler(current, old) {
-        this.constructor.options.model.event = current
+        this.constructor.options.model.event = current;
 
         // Can be null if the component is root
-        this.$parent && this.$parent.$forceUpdate()
+        this.$parent && this.$parent.$forceUpdate();
 
         this.$nextTick(() => {
-          if (current === 'input') {
-            this.$emit('input', this.text)
+          if (current === "input") {
+            this.$emit("input", this.text);
           } else {
-            this.$emit('select', this.selected)
+            this.$emit("select", this.selected);
           }
-        })
+        });
       },
       immediate: true
     },
     value: {
       handler(current) {
-        if (typeof current === 'string') {
-          this.text = current
+        if (typeof current === "string") {
+          this.text = current;
         } else if (current) {
-          this.text = this.displayProperty(current)
+          this.text = this.displayProperty(current);
         }
       },
       immediate: true
     }
   },
   //
-  data () {
+  data() {
     return {
       selected: null,
       hovered: null,
@@ -191,298 +201,339 @@ export default {
       isTabbed: false,
       controlScheme: {},
       listId: `${this._uid}-suggestions`
-    }
+    };
   },
   computed: {
-    listIsRequest () {
-      return typeof this.list === 'function'
+    listIsRequest() {
+      return typeof this.list === "function";
     },
-    inputIsComponent () {
-      return (this.$slots.default && this.$slots.default.length > 0) && !!this.$slots.default[0].componentInstance
+    inputIsComponent() {
+      return (
+        this.$slots.default &&
+        this.$slots.default.length > 0 &&
+        !!this.$slots.default[0].componentInstance
+      );
     },
-    input () {
-      return this.inputIsComponent ? this.$slots.default[0].componentInstance : this.inputElement
+    input() {
+      return this.inputIsComponent
+        ? this.$slots.default[0].componentInstance
+        : this.inputElement;
     },
-    on () {
-      return this.inputIsComponent ? '$on' : 'addEventListener'
+    on() {
+      return this.inputIsComponent ? "$on" : "addEventListener";
     },
-    off () {
-      return this.inputIsComponent ? '$off' : 'removeEventListener'
+    off() {
+      return this.inputIsComponent ? "$off" : "removeEventListener";
     },
-    hoveredIndex () {
-      return this.suggestions.findIndex(el => this.hovered && (this.valueProperty(this.hovered) == this.valueProperty(el)))
+    hoveredIndex() {
+      return this.suggestions.findIndex(
+        el =>
+          this.hovered &&
+          this.valueProperty(this.hovered) == this.valueProperty(el)
+      );
     },
-    textLength () {
-      return (this.text && this.text.length) || (this.inputElement.value.length) || 0
+    textLength() {
+      return (
+        (this.text && this.text.length) || this.inputElement.value.length || 0
+      );
     },
-    isSelectedUpToDate () {
-      return !!this.selected && this.displayProperty(this.selected) === this.text
+    isSelectedUpToDate() {
+      return (
+        !!this.selected && this.displayProperty(this.selected) === this.text
+      );
     }
   },
-  created () {
-    this.controlScheme = Object.assign({}, defaultControls, this.controls)
+  created() {
+    this.controlScheme = Object.assign({}, defaultControls, this.controls);
   },
-  mounted () {
-    this.inputElement = this.$refs['inputSlot'].querySelector('input')
+  mounted() {
+    this.inputElement = this.$refs["inputSlot"].querySelector("input");
 
-    this.setInputAriaAttributes()
-    this.prepareEventHandlers(true)
+    this.setInputAriaAttributes();
+    this.prepareEventHandlers(true);
   },
-  beforeDestroy () {
-    this.prepareEventHandlers(false)
+  beforeDestroy() {
+    this.prepareEventHandlers(false);
   },
   methods: {
     isEqual(suggestion, item) {
-      return item && (this.valueProperty(suggestion) == this.valueProperty(item))
+      return item && this.valueProperty(suggestion) == this.valueProperty(item);
     },
-    isSelected (suggestion) {
-      return this.isEqual(suggestion, this.selected)
+    isSelected(suggestion) {
+      return this.isEqual(suggestion, this.selected);
     },
-    isHovered (suggestion) {
-      return this.isEqual(suggestion, this.hovered)
+    isHovered(suggestion) {
+      return this.isEqual(suggestion, this.hovered);
     },
-    onSubmit (e) {
-      if (this.preventSubmit && e.key === 'Enter') {
-        e.stopPropagation()
-        e.preventDefault()
+    onSubmit(e) {
+      if (this.preventSubmit && e.key === "Enter") {
+        e.stopPropagation();
+        e.preventDefault();
       }
     },
-    setInputAriaAttributes () {
-      this.inputElement.setAttribute('aria-activedescendant', '')
-      this.inputElement.setAttribute('aria-autocomplete', 'list')
-      this.inputElement.setAttribute('aria-controls', this.listId)
+    setInputAriaAttributes() {
+      this.inputElement.setAttribute("aria-activedescendant", "");
+      this.inputElement.setAttribute("aria-autocomplete", "list");
+      this.inputElement.setAttribute("aria-controls", this.listId);
     },
     prepareEventHandlers(enable) {
-      const binder = this[enable ? 'on' : 'off']
+      const binder = this[enable ? "on" : "off"];
       const keyEventsList = {
         click: this.showSuggestions,
-        keydown: $event => (this.moveSelection($event), this.onAutocomplete($event)),
+        keydown: $event => (
+          this.moveSelection($event), this.onAutocomplete($event)
+        ),
         keyup: this.onListKeyUp
-      }
-      const eventsList = Object.assign({
-        blur: this.onBlur,
-        focus: this.onFocus,
-        input: this.onInput,
-      }, keyEventsList)
+      };
+      const eventsList = Object.assign(
+        {
+          blur: this.onBlur,
+          focus: this.onFocus,
+          input: this.onInput
+        },
+        keyEventsList
+      );
 
       for (const event in eventsList) {
-        this.input[binder](event, eventsList[event])
+        this.input[binder](event, eventsList[event]);
       }
 
-      const listenerBinder = enable ? 'addEventListener' : 'removeEventListener'
+      const listenerBinder = enable
+        ? "addEventListener"
+        : "removeEventListener";
 
       for (const event in keyEventsList) {
-        this.inputElement[listenerBinder](event, keyEventsList[event])
+        this.inputElement[listenerBinder](event, keyEventsList[event]);
       }
 
       if (this.preventSubmit === true) {
-        let form = this.$el.closest('form')
+        let form = this.$el.closest("form");
         if (form) {
-          form[listenerBinder]('keydown', this.onSubmit)
+          form[listenerBinder]("keydown", this.onSubmit);
         }
       }
     },
-    isScopedSlotEmpty (slot) {
+    isScopedSlotEmpty(slot) {
       if (slot) {
-        const vNode = slot(this)
-        return !(Array.isArray(vNode) || (vNode && (vNode.tag || vNode.context || vNode.text || vNode.children)))
+        const vNode = slot(this);
+        return !(
+          Array.isArray(vNode) ||
+          (vNode &&
+            (vNode.tag || vNode.context || vNode.text || vNode.children))
+        );
       }
 
-      return true
+      return true;
     },
-    miscSlotsAreEmpty () {
-      const slots = ['misc-item-above', 'misc-item-below'].map(s => this.$scopedSlots[s])
+    miscSlotsAreEmpty() {
+      const slots = ["misc-item-above", "misc-item-below"].map(
+        s => this.$scopedSlots[s]
+      );
 
       if (slots.every(s => !!s)) {
-        return slots.every(this.isScopedSlotEmpty.bind(this))
+        return slots.every(this.isScopedSlotEmpty.bind(this));
       }
 
-      const slot = slots.find(s => !!s)
+      const slot = slots.find(s => !!s);
 
-      return this.isScopedSlotEmpty.call(this, slot)
+      return this.isScopedSlotEmpty.call(this, slot);
     },
-    getPropertyByAttribute (obj, attr) {
-      return this.isPlainSuggestion ? obj : typeof obj !== undefined ? fromPath(obj, attr) : obj
+    getPropertyByAttribute(obj, attr) {
+      return this.isPlainSuggestion
+        ? obj
+        : typeof obj !== undefined
+        ? fromPath(obj, attr)
+        : obj;
     },
-    displayProperty (obj) {
+    displayProperty(obj) {
       if (this.isPlainSuggestion) {
-        return obj
+        return obj;
       }
 
       let display = this.getPropertyByAttribute(obj, this.displayAttribute);
 
-      if (typeof display === 'undefined') {
-        display = JSON.stringify(obj)
+      if (typeof display === "undefined") {
+        display = JSON.stringify(obj);
 
-        if (process && ~process.env.NODE_ENV.indexOf('dev')) {
-          console.warn('[vue-simple-suggest]: Please, provide `display-attribute` as a key or a dotted path for a property from your object.')
+        if (process && ~process.env.NODE_ENV.indexOf("dev")) {
+          console.warn(
+            "[vue-simple-suggest]: Please, provide `display-attribute` as a key or a dotted path for a property from your object."
+          );
         }
       }
 
-      return String(display)
+      return String(display);
     },
-    valueProperty (obj) {
+    valueProperty(obj) {
       if (this.isPlainSuggestion) {
-        return obj
+        return obj;
       }
 
       const value = this.getPropertyByAttribute(obj, this.valueAttribute);
 
-      if (typeof value === 'undefined') {
+      if (typeof value === "undefined") {
         console.error(
           `[vue-simple-suggest]: Please, check if you passed 'value-attribute' (default is 'id') and 'display-attribute' (default is 'title') props correctly.
         Your list objects should always contain a unique identifier.`
-        )
+        );
       }
 
-      return value
+      return value;
     },
 
     /**
      * @deprecated remove on the next release
      */
-    autocompleteText (text) {
-      this.setText(text)
+    autocompleteText(text) {
+      this.setText(text);
     },
-    setText (text) {
+    setText(text) {
       this.$nextTick(() => {
-        this.$emit('input', text)
-        this.inputElement.value = text
-        this.text = text
-      })
+        this.$emit("input", text);
+        this.inputElement.value = text;
+        this.text = text;
+      });
     },
-    select (item) {
+    select(item) {
       if (this.selected !== item || (this.nullableSelect && !item)) {
-        this.selected = item
-        this.$emit('select', item)
+        this.selected = item;
+        this.$emit("select", item);
 
         if (item) {
-          this.setText(this.displayProperty(item))
+          this.setText(this.displayProperty(item));
         }
       }
 
-      this.hover(null)
+      this.hover(null);
     },
-    hover (item, elem) {
-      const elemId = !!item ? this.getId(item, this.hoveredIndex) : ''
+    hover(item, elem) {
+      const elemId = !!item ? this.getId(item, this.hoveredIndex) : "";
 
-      this.inputElement.setAttribute('aria-activedescendant',  elemId)
+      this.inputElement.setAttribute("aria-activedescendant", elemId);
 
-      if (item && (item !== this.hovered)) {
-        this.$emit('hover', item, elem)
+      if (item && item !== this.hovered) {
+        this.$emit("hover", item, elem);
       }
 
-      this.hovered = item
+      this.hovered = item;
     },
-    hoverList (isOverList) {
-      this.isOverList = isOverList
+    hoverList(isOverList) {
+      this.isOverList = isOverList;
     },
-    hideList () {
+    hideList() {
       if (this.listShown) {
-        this.listShown = false
-        this.hover(null)
-        this.$emit('hide-list')
+        this.listShown = false;
+        this.hover(null);
+        this.$emit("hide-list");
       }
     },
-    showList () {
+    showList() {
       if (!this.listShown) {
-        if (this.textLength >= this.minLength
-          && ((this.suggestions.length > 0) || !this.miscSlotsAreEmpty())
+        if (
+          this.textLength >= this.minLength &&
+          (this.suggestions.length > 0 || !this.miscSlotsAreEmpty())
         ) {
-          this.listShown = true
-          this.$emit('show-list')
+          this.listShown = true;
+          this.$emit("show-list");
         }
       }
     },
-    async showSuggestions () {
+    async showSuggestions() {
       if (this.suggestions.length === 0 && this.minLength === this.textLength) {
-        await this.research()
+        await this.research();
       }
 
-      this.showList()
+      this.showList();
     },
-    moveSelection (e) {
-      if (!this.listShown || !this.suggestions.length) return
-      if (hasKeyCode([this.controlScheme.selectionUp, this.controlScheme.selectionDown], e)) {
-        e.preventDefault()
-        this.showSuggestions()
+    moveSelection(e) {
+      if (!this.listShown || !this.suggestions.length) return;
+      if (
+        hasKeyCode(
+          [this.controlScheme.selectionUp, this.controlScheme.selectionDown],
+          e
+        )
+      ) {
+        e.preventDefault();
+        this.showSuggestions();
 
-        const isMovingDown = hasKeyCode(this.controlScheme.selectionDown, e)
-        const direction = isMovingDown * 2 - 1
-        const listEdge = isMovingDown ? 0 : this.suggestions.length - 1
-        const hoversBetweenEdges = isMovingDown ? this.hoveredIndex < this.suggestions.length - 1 : this.hoveredIndex > 0
+        const isMovingDown = hasKeyCode(this.controlScheme.selectionDown, e);
+        const direction = isMovingDown * 2 - 1;
+        const listEdge = isMovingDown ? 0 : this.suggestions.length - 1;
+        const hoversBetweenEdges = isMovingDown
+          ? this.hoveredIndex < this.suggestions.length - 1
+          : this.hoveredIndex > 0;
 
-        let item = null
+        let item = null;
 
         if (!this.hovered) {
-          item = this.selected || this.suggestions[listEdge]
+          item = this.selected || this.suggestions[listEdge];
         } else if (hoversBetweenEdges) {
-          item = this.suggestions[this.hoveredIndex + direction]
-        } else /* if hovers on edge */ {
-          item = this.suggestions[listEdge]
+          item = this.suggestions[this.hoveredIndex + direction];
+        } /* if hovers on edge */ else {
+          item = this.suggestions[listEdge];
         }
-        this.hover(item)
+        this.hover(item);
       }
     },
-    onListKeyUp (e) {
+    onListKeyUp(e) {
       const select = this.controlScheme.select,
-          hideList = this.controlScheme.hideList
+        hideList = this.controlScheme.hideList;
 
       if (hasKeyCode([select, hideList], e)) {
-        e.preventDefault()
+        e.preventDefault();
         if (this.listShown) {
           if (hasKeyCode(select, e)) {
-            this.select(this.hovered)
+            this.select(this.hovered);
           }
 
-          this.hideList()
+          this.hideList();
         } else if (hasKeyCode(select, e)) {
-          this.research()
+          this.research();
         }
       }
     },
-    onAutocomplete (e) {
-      if (hasKeyCode(this.controlScheme.autocomplete, e)
-        && (e.ctrlKey || e.shiftKey)
-        && (this.suggestions.length > 0 && this.suggestions[0])
-        && (this.listShown)
+    onAutocomplete(e) {
+      if (
+        hasKeyCode(this.controlScheme.autocomplete, e) &&
+        (e.ctrlKey || e.shiftKey) &&
+        (this.suggestions.length > 0 && this.suggestions[0]) &&
+        this.listShown
       ) {
-        e.preventDefault()
-        this.hover(this.suggestions[0])
-        this.setText(this.displayProperty(this.suggestions[0]))
+        e.preventDefault();
+        this.hover(this.suggestions[0]);
+        this.setText(this.displayProperty(this.suggestions[0]));
       }
     },
-    suggestionClick (suggestion, e) {
-      this.$emit('suggestion-click', suggestion, e)
-      this.select(suggestion)
+    suggestionClick(suggestion, e) {
+      this.$emit("suggestion-click", suggestion, e);
+      this.select(suggestion);
 
       /// Ensure, that all needed flags are off before finishing the click.
-      this.isClicking = this.isOverList = false
+      this.isClicking = this.isOverList = false;
 
       this.$nextTick(() => {
-        this.hideList()
-      })
+        this.hideList();
+      });
     },
-    onBlur (e) {
+    onBlur(e) {
       if (this.isInFocus) {
-
         /// Clicking starts here, because input's blur occurs before the suggestionClick
         /// and exactly when the user clicks the mouse button or taps the screen.
-        this.isClicking = this.isOverList && !this.isTabbed
+        this.isClicking = this.isOverList && !this.isTabbed;
 
         if (!this.isClicking) {
-          this.isInFocus = false
-          this.hideList()
+          this.isInFocus = false;
+          this.hideList();
 
-          this.$emit('blur', e)
+          this.$emit("blur", e);
         } else if (e && e.isTrusted && !this.isTabbed) {
-          this.isFalseFocus = true
+          this.isFalseFocus = true;
           this.$nextTick(() => {
-            this.inputElement.focus()
-          })
+            this.inputElement.focus();
+          });
         }
       } else {
-        this.inputElement.blur()
+        this.inputElement.blur();
         console.error(
           `This should never happen!
           If you encountered this error, please make sure that your input component emits 'focus' events properly.
@@ -490,146 +541,144 @@ export default {
 
           If your 'vue-simple-suggest' setup does not include a custom input component - please,
           report to https://github.com/KazanExpress/vue-simple-suggest/issues/new`
-        )
+        );
       }
 
-      this.isTabbed = false
+      this.isTabbed = false;
     },
-    onFocus (e) {
-      this.isInFocus = true
+    onFocus(e) {
+      this.isInFocus = true;
 
       // Only emit, if it was a native input focus
       if (e && !this.isFalseFocus) {
-        this.$emit('focus', e)
+        this.$emit("focus", e);
       }
-      this.isFalseFocus = false
+      this.isFalseFocus = false;
 
       // Show list only if the item has not been clicked
       if (!this.isClicking) {
-        this.showSuggestions()
+        this.showSuggestions();
       }
     },
-    onInput (inputEvent) {
-      const value = !inputEvent.target ? inputEvent : inputEvent.target.value
+    onInput(inputEvent) {
+      const value = !inputEvent.target ? inputEvent : inputEvent.target.value;
 
-      if (this.text === value) { return }
+      if (this.text === value) {
+        return;
+      }
 
-      this.text = value
-      this.$emit('input', this.text)
+      this.text = value;
+      this.$emit("input", this.text);
 
-      if (this.hovered) this.hover(null)
+      if (this.hovered) this.hover(null);
 
       if (this.debounce) {
-        clearTimeout(this.timeoutInstance)
-        this.timeoutInstance = setTimeout(this.research, this.debounce)
+        clearTimeout(this.timeoutInstance);
+        this.timeoutInstance = setTimeout(this.research, this.debounce);
       } else {
-        this.research()
+        this.research();
       }
     },
-    async research () {
+    async research() {
       try {
         if (this.canSend) {
-          this.canSend = false
+          this.canSend = false;
           // @TODO: fix when promises will be cancelable (never :D)
-          let textBeforeRequest = this.text
-          let newList = await this.getSuggestions(this.text)
+          let textBeforeRequest = this.text;
+          let newList = await this.getSuggestions(this.text);
 
           if (textBeforeRequest === this.text) {
-            this.$set(this, 'suggestions', newList)
+            this.$set(this, "suggestions", newList);
           }
         }
-      }
+      } catch (e) {
+        this.clearSuggestions();
+        throw e;
+      } finally {
+        this.canSend = true;
 
-      catch (e) {
-        this.clearSuggestions()
-        throw e
-      }
-
-      finally {
-        this.canSend = true
-
-        if ((this.suggestions.length === 0) && this.miscSlotsAreEmpty()) {
-          this.hideList()
+        if (this.suggestions.length === 0 && this.miscSlotsAreEmpty()) {
+          this.hideList();
         } else {
-          this.showList()
+          this.showList();
         }
 
-        return this.suggestions
+        return this.suggestions;
       }
     },
-    async getSuggestions (value) {
-      value = value || '';
+    async getSuggestions(value) {
+      value = value || "";
 
       if (value.length < this.minLength) {
         if (this.listShown) {
-          this.hideList()
-          return []
+          this.hideList();
+          return [];
         }
 
-        return this.suggestions
+        return this.suggestions;
       }
 
-      this.selected = null
+      this.selected = null;
 
       // Start request if can
       if (this.listIsRequest) {
-        this.$emit('request-start', value)
+        this.$emit("request-start", value);
 
-        if ((this.suggestions.length > 0) || (!this.miscSlotsAreEmpty())) {
-          this.showList()
+        if (this.suggestions.length > 0 || !this.miscSlotsAreEmpty()) {
+          this.showList();
         }
       }
 
-      let result = []
+      let result = [];
       try {
         if (this.listIsRequest) {
-          result = (await this.list(value)) || []
+          result = (await this.list(value)) || [];
         } else {
-          result = this.list
+          result = this.list;
         }
 
         // IFF the result is not an array (just in case!) - make it an array
-        if (!Array.isArray(result)) { result = [result] }
+        if (!Array.isArray(result)) {
+          result = [result];
+        }
 
-        this.isPlainSuggestion = (typeof result[0] !== 'object') || Array.isArray(result[0])
+        this.isPlainSuggestion =
+          typeof result[0] !== "object" || Array.isArray(result[0]);
 
         if (this.filterByQuery) {
-          result = result.filter((el) => this.filter(el, value))
+          result = result.filter(el => this.filter(el, value));
         }
 
         if (this.listIsRequest) {
-          this.$emit('request-done', result)
+          this.$emit("request-done", result);
         }
-      }
-
-      catch (e) {
+      } catch (e) {
         if (this.listIsRequest) {
-          this.$emit('request-failed', e)
+          this.$emit("request-failed", e);
         } else {
-          throw e
+          throw e;
         }
-      }
-
-      finally {
+      } finally {
         if (this.maxSuggestions) {
-          result.splice(this.maxSuggestions)
+          result.splice(this.maxSuggestions);
         }
 
-        return result
+        return result;
       }
     },
-    clearSuggestions () {
-      this.suggestions.splice(0)
+    clearSuggestions() {
+      this.suggestions.splice(0);
     },
-    getId (value, i) {
-      return `${this.listId}-suggestion-${this.isPlainSuggestion ? i : (this.valueProperty(value) || i)}`
+    getId(value, i) {
+      return `${this.listId}-suggestion-${
+        this.isPlainSuggestion ? i : this.valueProperty(value) || i
+      }`;
     }
   }
-}
+};
 </script>
 
 <style>
-
 .vue-simple-suggest > ul {
   list-style: none;
   margin: 0;
@@ -640,7 +689,8 @@ export default {
   position: relative;
 }
 
-.vue-simple-suggest.designed, .vue-simple-suggest.designed * {
+.vue-simple-suggest.designed,
+.vue-simple-suggest.designed * {
   box-sizing: border-box;
 }
 
@@ -652,9 +702,9 @@ export default {
   border-radius: 3px;
   color: black;
   background: white;
-  outline:none;
-  transition: all .1s;
-  transition-delay: .05s
+  outline: none;
+  transition: all 0.1s;
+  transition-delay: 0.05s;
 }
 
 .vue-simple-suggest.designed.focus .input-wrapper input {
@@ -685,12 +735,12 @@ export default {
 }
 
 .vue-simple-suggest.designed .suggestions .suggest-item.hover {
-  background-color: #2874D5 !important;
+  background-color: #2874d5 !important;
   color: #fff !important;
 }
 
 .vue-simple-suggest.designed .suggestions .suggest-item.selected {
-  background-color: #2832D5;
+  background-color: #2832d5;
   color: #fff;
 }
 </style>

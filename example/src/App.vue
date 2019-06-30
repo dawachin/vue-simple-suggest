@@ -11,73 +11,79 @@
         >select</button>
 
       </p>
-      <vue-suggest class="asdad" pattern="\w+"
-        v-model="model"
-        :list="getList"
-        :max-suggestions="10"
-        :min-length="3"
-        :debounce="200"
-        :filter-by-query="false"
-        :prevent-submit="true"
-        :controls="{
-          selectionUp: [38, 33],
-          selectionDown: [40, 34],
-          select: [13, 36],
-          hideList: [27, 35]
-        }"
-        :mode="mode"
-        :nullable-select="true"
-        ref="suggestComponent"
-        placeholder="Search information..."
-        value-attribute="id"
-        display-attribute="text"
-        @suggestion-click="onSuggestClick"
-        @select="onSuggestSelect"
-        @hover="onSuggestHover"
-        @focus="onFocus"
-        @blur="onBlur"
-        @request-start="onRequestStart"
-        @request-done="onRequestDone"
-        @request-failed="onRequestFailed"
-        @show-list="onShowList"
-        @hide-list="onHideList">
-        <!-- <input type="text"> -->
 
-        <div class="g">
-          <input type="text">
-        </div>
+      <v-form ref="form">
+        <vue-suggest class="asdad" pattern="\w+"
+          v-model="model"
+          :list="getList"
+          :max-suggestions="10"
+          :min-length="3"
+          :debounce="200"
+          :filter-by-query="false"
+          :prevent-submit="true"
+          :controls="{
+            selectionUp: [38, 33],
+            selectionDown: [40, 34],
+            select: [13, 36],
+            hideList: [27, 35]
+          }"
+          :mode="mode"
+          :nullable-select="true"
+          ref="suggestComponent"
+          placeholder="Search information..."
+          value-attribute="id"
+          display-attribute="text"
+          @suggestion-click="onSuggestClick"
+          @select="onSuggestSelect"
+          @hover="onSuggestHover"
+          @focus="onFocus"
+          @blur="onBlur"
+          @request-start="onRequestStart"
+          @request-done="onRequestDone"
+          @request-failed="onRequestFailed"
+          @show-list="onShowList"
+          @hide-list="onHideList">
+          <!-- <input type="text"> -->
 
-        <!-- <test-input placeholder="Search information..." /> -->
+          <v-text-field
+              v-model="model"
+              :counter="max"
+              :rules="rules"
+              label="First name"
+            ></v-text-field>
 
-        <template slot="misc-item-above" slot-scope="{ suggestions, query }">
-          <div class="misc-item">
-            <span>You're searching for '{{ query }}'.</span>
-          </div>
+          <!-- <test-input placeholder="Search information..." /> -->
 
-          <template v-if="suggestions.length > 0">
+          <template slot="misc-item-above" slot-scope="{ suggestions, query }">
             <div class="misc-item">
-              <span>{{ suggestions.length }} suggestions are shown...</span>
+              <span>You're searching for '{{ query }}'.</span>
             </div>
-            <hr>
+
+            <template v-if="suggestions.length > 0">
+              <div class="misc-item">
+                <span>{{ suggestions.length }} suggestions are shown...</span>
+              </div>
+              <hr>
+            </template>
+
+            <div class="misc-item" v-else-if="!loading">
+              <span>No results</span>
+            </div>
           </template>
 
-          <div class="misc-item" v-else-if="!loading">
-            <span>No results</span>
+          <div slot="suggestion-item" slot-scope="scope" :title="scope.suggestion.description">
+            <div class="text">
+              <span v-html="boldenSuggestion(scope)"></span>
+            </div>
+            <button @click.stop="addToLog(scope.suggestion.description)">Log</button>
+            <button @click.stop="goto(scope.suggestion.link)">Open WIKI</button>
           </div>
-        </template>
 
-        <div slot="suggestion-item" slot-scope="scope" :title="scope.suggestion.description">
-          <div class="text">
-            <span v-html="boldenSuggestion(scope)"></span>
+          <div class="misc-item" slot="misc-item-below" slot-scope="{ suggestions }" v-if="loading">
+            <span>Loading...</span>
           </div>
-          <button @click.stop="addToLog(scope.suggestion.description)">Log</button>
-          <button @click.stop="goto(scope.suggestion.link)">Open WIKI</button>
-        </div>
-
-        <div class="misc-item" slot="misc-item-below" slot-scope="{ suggestions }" v-if="loading">
-          <span>Loading...</span>
-        </div>
-      </vue-suggest>
+        </vue-suggest>
+      </v-form>
 
       <p v-if="selected">Selected element ({{ typeof selected }}): <pre class="selected hljs"><code v-html="selected"></code></pre></p>
       <p v-if="model">v-model ({{ typeof model }}): <pre class="selected hljs"><code v-html="model"></code></pre></p>
@@ -95,6 +101,7 @@
 
 <script>
   import VueSuggest from 'vue-simple-suggest/lib'
+  import 'vuetify/dist/vuetify.min.css'
 
   import TestInput from './TestInput'
 
